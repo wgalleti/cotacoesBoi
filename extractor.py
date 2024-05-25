@@ -36,6 +36,8 @@ def extract_table_data(soup, table_identifiers, headers):
     rows = []
     for tr in table.find_all("tr", {"class": "conteudo"}):
         cells = tr.find_all("td")
+        if cells[0].text.strip() in headers:
+            continue
         row = [cells[0].text.strip(), cells[1].text.strip()]
         rows.append(row)
 

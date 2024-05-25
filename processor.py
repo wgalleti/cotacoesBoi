@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from utils import separar_cidade_estado
 
 from templates import EMAIL_HTML
@@ -25,7 +25,9 @@ def gerar_html(data, df_estados):
     :param df_estados: DataFrame contendo estados brasileiros.
     :return: String contendo o HTML gerado.
     """
-    year, month, day = datetime.now().strftime("%Y-%m-%d").split("-")
+    current_date = datetime.now() - timedelta(days=1)
+    year, month, _ = current_date.strftime("%Y-%m-%d").split("-")
+    date = current_date.strftime("%d/%m/%Y")
     for item in data:
         item["df"].insert(0, "Tipo", item.get("title"))
 
@@ -33,9 +35,9 @@ def gerar_html(data, df_estados):
     df_result[["Cidade", "Estado"]] = df_result["UF"].apply(
         lambda x: pd.Series(separar_cidade_estado(x, df_estados))
     )
-    df_result = df_result.assign(Ano=year, Mês=month, Dia=day)
+    df_result = df_result.assign(Data=date, Ano=year, Mês=month)
 
-    df_result = df_result[["Ano", "Mês", "Dia", "Tipo", "Cidade", "Estado", "Valor"]]
+    df_result = df_result[["Data", "Ano", "Mês", "Tipo", "Cidade", "Estado", "Valor"]]
 
     return EMAIL_HTML.replace(
         "%date%",
